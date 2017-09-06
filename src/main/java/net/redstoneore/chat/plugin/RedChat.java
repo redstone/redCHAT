@@ -216,7 +216,7 @@ public class RedChat extends JavaPlugin {
 		Config.get().consoleId = UUID.randomUUID();
 		
 		// Add global channel
-		StaticChannel globalChannel = new StaticChannel("global");
+		StaticChannel globalChannel = new StaticChannel("Global");
 		globalChannel.setDescription("Default channel!");
 		globalChannel.getFormat().addAll(Lists.newArrayList(
 			PartChannelFormat.create("[%redchat_channel_name%] ").colour(ChatColor.GOLD),
@@ -233,7 +233,7 @@ public class RedChat extends JavaPlugin {
 		Config.get().channels.add(globalChannel);
 		
 		// Add nearby channel
-		StaticChannel nearbyChannel = new StaticChannel("nearby");
+		StaticChannel nearbyChannel = new StaticChannel("Nearby");
 		nearbyChannel.setDescription("Nearby players - players nearby in a distance of 50 blocks.");
 		nearbyChannel.getFormat().addAll(Lists.newArrayList(
 			PartChannelFormat.create("[%redchat_channel_name%] ").colour(ChatColor.GRAY),
