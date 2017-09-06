@@ -23,7 +23,6 @@ public class PartChannelFormat {
 		return new PartChannelFormat().text(message);
 	}
 	
-	
 	// -------------------------------------------------- //
 	// FIELDS
 	// -------------------------------------------------- //
@@ -61,9 +60,11 @@ public class PartChannelFormat {
 		if (this.colour != null) {
 			message.color(this.colour);
 		}
+		
 		if (this.style != null && !this.style.isEmpty()) {
 			this.style.forEach(style -> message.style(style));
 		}
+		
 		if (this.command != null) {
 			message.command(command);
 		}
@@ -74,9 +75,11 @@ public class PartChannelFormat {
 			this.tooltip.forEach(tooltip -> {
 				tooltipLines.add(tooltip.getFancyMessage(sender, receiver, PlaceholderUtil.parse(sender, receiver, tooltip.text), true));
 			});
+			
+			message.formattedTooltip(tooltipLines);
 		}
+		
 		return message;
-
 	}
 	
 	public FancyMessage getFancyMessage(Speaker sender, Speaker receiver) {
