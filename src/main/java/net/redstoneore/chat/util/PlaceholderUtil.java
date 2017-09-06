@@ -18,12 +18,13 @@ public class PlaceholderUtil {
 			message = parseMVdWPlaceholderAPI(playerSender, playerReceiver, message);
 		}
 		
-		
 		return message;
 	}
 	
 	private static String parsePlaceholderAPI(Player sender, Player receiver, String message) {
-		return me.clip.placeholderapi.PlaceholderAPI.setRelationalPlaceholders(sender, receiver, message);
+		message =  me.clip.placeholderapi.PlaceholderAPI.setRelationalPlaceholders(sender, receiver, message);
+		message =  me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(sender, message);
+		return message;
 	}
 	
 	private static String parseMVdWPlaceholderAPI(Player sender, Player receiver, String message) {

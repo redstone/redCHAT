@@ -72,9 +72,9 @@ public class PartChannelFormat {
 		if (this.tooltip != null && this.tooltip.size() > 0 && !isTooltip) {
 			List<FancyMessage> tooltipLines = new ArrayList<>();
 			
-			this.tooltip.forEach(tooltip -> {
-				tooltipLines.add(tooltip.getFancyMessage(sender, receiver, PlaceholderUtil.parse(sender, receiver, tooltip.text), true));
-			});
+			this.tooltip.forEach(tooltip -> 
+				tooltipLines.add(tooltip.getFancyMessage(sender, receiver, PlaceholderUtil.parse(sender, receiver, tooltip.text), true))
+			);
 			
 			message.formattedTooltip(tooltipLines);
 		}
