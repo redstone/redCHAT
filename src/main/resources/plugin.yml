@@ -2,3 +2,4 @@ name: redCHAT
 version: ${version}
 main: net.redstoneore.chat.plugin.RedChat
 author: MarkehMe
+softdepend: [ProtocolLib]

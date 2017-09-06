@@ -2,6 +2,7 @@ package net.redstoneore.chat.config.parts;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.ChatColor;
 
@@ -122,11 +123,12 @@ public class PartChannelFormat {
 		return this;
 	}
 	
-	public static String format(String string, Speaker sender, String message) {
+	public static String format(String string, Speaker sender, UUID messageId, String message) {
 		return string
 			.replace("%redchat_channel_name%", sender.getSpeakingChannel().getName())
 			.replace("%redchat_player_name%", sender.getDisplayName())
 			.replace("%redchat_player_message%", message)
+			.replace("%redchat_player_messageid%", messageId.toString())
 			;
 	}
 	

@@ -161,4 +161,6 @@ public interface Speaker {
 		return this.getSpeakingChannel().sendMessage(this, message);
 	}
 	
+	void removeMessage(UUID uuid);
+	
 }

@@ -131,5 +131,10 @@ public class ConsoleSpeaker implements Speaker {
 	public void removeListening(Channel channel) {
 		
 	}
+
+	@Override
+	public void removeMessage(UUID uuid) {
+		
+	}
 	
 }

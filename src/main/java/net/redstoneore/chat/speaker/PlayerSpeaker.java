@@ -10,7 +10,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 
 import mkremins.fanciful.FancyMessage;
 import net.redstoneore.chat.Channel;
@@ -59,6 +63,10 @@ public class PlayerSpeaker implements Speaker {
 	
 	private AtomicBoolean firstJoin = new AtomicBoolean(true);
 	
+	private transient Cache<UUID, String> messageLog = CacheBuilder.newBuilder()
+			.maximumSize(100)
+			.build();
+	
 	// -------------------------------------------------- //
 	// METHODS
 	// -------------------------------------------------- //
@@ -83,21 +91,29 @@ public class PlayerSpeaker implements Speaker {
 	@Override
 	public void sendMessage(UUID messageId, String message) {
 		if (this.player == null) return;
-		
-		if (!Bukkit.isPrimaryThread()) {
-			Bukkit.getScheduler().runTask(RedChat.get(), () -> this.player.sendMessage(message));
-		} else {
-			this.player.sendMessage(message);
-		}
+			
+		this.sendMessage(messageId, new FancyMessage(message));
 	}
 	
 	@Override
 	public void sendMessage(UUID messageId, FancyMessage message) {
+		if (this.player == null) return;
+		if (!this.player.isOnline()) return;
+		
+		// Stamp this message with the redchat meta
+		final FancyMessage stampedMessage = this.addRedChatMeta(messageId, message);
+		
+		// Send to player, ChatPacketListener will remove this meta later
 		if (!Bukkit.isPrimaryThread()) {
-			Bukkit.getScheduler().runTask(RedChat.get(), () -> message.send(this.player));
+			// not on the right thread
+			Bukkit.getScheduler().runTask(RedChat.get(), () -> stampedMessage.send(this.player));
 		} else {
-			message.send(this.player);
+			stampedMessage.send(this.player);
 		}
+	}
+	
+	private FancyMessage addRedChatMeta(UUID messageId, FancyMessage message) {
+		return message.then(RedChat.REDCHAT_MSGID + "/" + messageId.toString()).color(ChatColor.RED);
 	}
 	
 	@Override
@@ -211,6 +227,11 @@ public class PlayerSpeaker implements Speaker {
 		return this.lastKnownLocation;
 	}
 	
+	@Override
+	public void removeMessage(UUID uuid) {
+		
+	}
+	
 	/**
 	 * Player only method to populate this object with the players information.
 	 * @param player Player to populate.
@@ -219,6 +240,13 @@ public class PlayerSpeaker implements Speaker {
 		this.id = player.getUniqueId();
 		this.name = player.getName();
 		this.player = player;
+		
+		// Clear up the message log with blank messages
+		int i = 0;
+		while (i < 100) {
+			this.messageLog.put(UUID.randomUUID(), "");
+			i++;
+		}
 		
 		if (Channels.get().get(Config.get().defaultChannel).isPresent()) {
 			Channel defaultChannel = Channels.get().get(Config.get().defaultChannel).get();
@@ -251,6 +279,15 @@ public class PlayerSpeaker implements Speaker {
 	 */
 	public void setLastLocation(RLocation lastLocation) {
 		this.lastKnownLocation = lastLocation;
+	}
+	
+	/**
+	 * Add a message to the message log. Only players maintain a message log.
+	 * @param uuid UUID of message.
+	 * @param jsonMessage The json message.
+	 */
+	public void addToMessageLog(UUID uuid, String jsonMessage) {
+		this.messageLog.put(uuid, jsonMessage);
 	}
 	
 }

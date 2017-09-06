@@ -102,13 +102,13 @@ public abstract class ReceivingChannel implements Channel {
 			
 			if (hearType == HearType.MUMBLE) {
 				determinedFormat.forEach(part -> 
-					part.append(sender, receiver, createdMessage, PlaceholderUtil.parse(sender, receiver, PartChannelFormat.format(part.text, sender, mumbleMessage)))
+					part.append(sender, receiver, createdMessage, PlaceholderUtil.parse(sender, receiver, PartChannelFormat.format(part.text, sender, messageId, mumbleMessage)))
 				);
 				
 				receiver.sendMessage(messageId, createdMessage);
 			} else if (hearType == HearType.CLEAR || hearType == HearType.SPY) {
 				determinedFormat.forEach(part -> 
-					part.append(sender, receiver, createdMessage, PlaceholderUtil.parse(sender, receiver, PartChannelFormat.format(part.text, sender, determinedMessage)))
+					part.append(sender, receiver, createdMessage, PlaceholderUtil.parse(sender, receiver, PartChannelFormat.format(part.text, sender, messageId, determinedMessage)))
 				);
 				
 				receiver.sendMessage(messageId, createdMessage);

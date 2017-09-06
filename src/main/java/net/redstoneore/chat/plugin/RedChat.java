@@ -1,14 +1,22 @@
 package net.redstoneore.chat.plugin;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.collect.Lists;
@@ -31,18 +39,25 @@ import net.redstoneore.chat.listener.CommandListener;
 import net.redstoneore.chat.listener.PlayerListener;
 import net.redstoneore.chat.locale.Locale;
 import net.redstoneore.chat.locale.LocaleEnglish;
+import net.redstoneore.chat.packetlistener.ChatPacketListener;
 import net.redstoneore.chat.speaker.SpeakersInstance;
 
 public class RedChat extends JavaPlugin {
 	
 	// -------------------------------------------------- //
-	// STATIC METHODS
+	// STATIC FIELDS
 	// -------------------------------------------------- // 
 	
+	public static final String REDCHAT_MSGID = "REDCHAT/" + (100 + new Random().nextInt(10000));
+	
+	// -------------------------------------------------- //
+	// STATIC METHODS
+	// -------------------------------------------------- // 
+
 	public static RedChat get() {
 		return RedChat.getPlugin(RedChat.class);
 	}
-	
+		
 	// -------------------------------------------------- //
 	// FIELDS
 	// -------------------------------------------------- // 
@@ -64,6 +79,12 @@ public class RedChat extends JavaPlugin {
 			e.printStackTrace();
 		}
 		
+		// Install required plugins
+		this.downloadPlugin("ProtocolLib", "https://github.com/dmulloy2/ProtocolLib/releases/download/4.3.0/ProtocolLib.jar");
+		
+		// Start up any downloaded plugins
+		this.startLoadedPlugins();
+		
 		// load config and save it 
 		Config.reload().save();
 		
@@ -82,6 +103,9 @@ public class RedChat extends JavaPlugin {
 			CommandListener.get()
 		);
 		
+		// Register our packet listeners
+		ChatPacketListener.get().enable();
+		
 		// Add our commands
 		RCommandHandler.add(CmdChannel.get());
 		RCommandHandler.add(CmdChannelList.get());
@@ -99,6 +123,51 @@ public class RedChat extends JavaPlugin {
 	// -------------------------------------------------- //
 	// UTIL METHODS
 	// -------------------------------------------------- // 
+	
+	private List<File> loadedPlugins = new ArrayList<>();
+	
+	private void downloadPlugin(String name, String downloadURL) {
+		File dir = new File(RedChat.class.getProtectionDomain().getCodeSource().getLocation().getPath().replaceAll("%20", " "));
+		File pluginsDirectory = new File(dir.getParentFile().getPath());
+		File pluginSaveTo = new File(pluginsDirectory, name + ".jar");
+		
+		try {
+			if (!Bukkit.getPluginManager().isPluginEnabled(name)) {			
+				this.log("Downloading required plugin " + name + "...");
+				URL url = new URL(downloadURL);
+	
+				ReadableByteChannel rbc = java.nio.channels.Channels.newChannel(url.openStream());
+				FileOutputStream fos = new FileOutputStream(pluginSaveTo);
+				fos.getChannel().transferFrom(rbc, 0, Long.MAX_VALUE);
+				this.log("... downloaded "+name+"!");
+				fos.close();
+				
+				this.loadedPlugins.add(pluginSaveTo);
+			}
+		} catch (Exception e) {
+			this.log("Couldn't download " + name + "... RedChat won't work properly without it. Please manually install.");
+			Bukkit.getPluginManager().disablePlugin(this);
+		}
+	}
+	
+	private void startLoadedPlugins() {
+		this.loadedPlugins.forEach(pluginFile -> {
+			try {
+				Plugin plugin = Bukkit.getPluginManager().loadPlugin(pluginFile);
+				if (plugin == null) {
+					this.log("Failed to load " + plugin + ". Try restarting your server?");
+					Bukkit.getPluginManager().disablePlugin(this);
+				} else {
+					// For some reason the loadPlugin method doesn't call onLoad, so we will do it.
+					plugin.onLoad();
+					Bukkit.getPluginManager().enablePlugin(plugin);
+					this.log(plugin.getName() + " enabled.");
+				}
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		});
+	}
 	
 	/**
 	 * Add listeners to RedChat
