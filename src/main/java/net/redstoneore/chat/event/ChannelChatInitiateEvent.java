@@ -1,7 +1,7 @@
 package net.redstoneore.chat.event;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.bukkit.event.Cancellable;
@@ -10,6 +10,7 @@ import org.bukkit.event.HandlerList;
 import net.redstoneore.chat.Channel;
 import net.redstoneore.chat.Speaker;
 import net.redstoneore.chat.config.parts.PartChannelFormat;
+import net.redstoneore.chat.struct.HearType;
 
 public class ChannelChatInitiateEvent extends RedChatEvent<ChannelChatInitiateEvent> implements Cancellable {
 
@@ -19,7 +20,7 @@ public class ChannelChatInitiateEvent extends RedChatEvent<ChannelChatInitiateEv
 	
 	private static final HandlerList handlers = new HandlerList();
 	
-	public static ChannelChatInitiateEvent create(Channel channel, Speaker player, String message, List<PartChannelFormat> format, Set<Speaker> recipients) {
+	public static ChannelChatInitiateEvent create(Channel channel, Speaker player, String message, List<PartChannelFormat> format, Map<Speaker, HearType> recipients) {
 		return new ChannelChatInitiateEvent(channel, player, message, format, recipients);
 	}
 	
@@ -35,7 +36,7 @@ public class ChannelChatInitiateEvent extends RedChatEvent<ChannelChatInitiateEv
 	// CONSTRUCT
 	// -------------------------------------------------- //
 	
-	public ChannelChatInitiateEvent(Channel channel, Speaker player, String message, List<PartChannelFormat> format, Set<Speaker> recipients) {
+	public ChannelChatInitiateEvent(Channel channel, Speaker player, String message, List<PartChannelFormat> format, Map<Speaker, HearType> recipients) {
 		this.channel = channel;
 		this.player = player;
 		this.message = message;
@@ -51,7 +52,7 @@ public class ChannelChatInitiateEvent extends RedChatEvent<ChannelChatInitiateEv
 	private final Speaker player;
 	private String message;
 	private List<PartChannelFormat> format;
-	private final Set<Speaker> recipients;
+	private final Map<Speaker, HearType> recipients;
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
 	
 	// -------------------------------------------------- //
@@ -82,12 +83,12 @@ public class ChannelChatInitiateEvent extends RedChatEvent<ChannelChatInitiateEv
 		this.format = format;
 	}
 	
-	public Set<Speaker> getRecipients() {
+	public Map<Speaker, HearType> getRecipients() {
 		return this.recipients;
 	}
 	
-	public void recipientAdd(Speaker speaker) {
-		this.recipients.add(speaker);
+	public void recipientAdd(Speaker speaker, HearType hearType) {
+		this.recipients.put(speaker, hearType);
 	}
 	
 	public void recipientRemove(Speaker speaker) {

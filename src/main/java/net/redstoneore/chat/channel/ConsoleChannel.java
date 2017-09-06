@@ -117,5 +117,15 @@ public class ConsoleChannel implements Channel {
 	public Optional<String> permission() {
 		return Optional.of("redchat.console");
 	}
+
+	@Override
+	public boolean isDefaultSpeaking() {
+		return false;
+	}
+
+	@Override
+	public boolean isDefaultListening() {
+		return false;
+	}
 	
 }

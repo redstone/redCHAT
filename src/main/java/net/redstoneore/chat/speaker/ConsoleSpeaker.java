@@ -5,15 +5,16 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 
 import mkremins.fanciful.FancyMessage;
 import net.redstoneore.chat.Channel;
 import net.redstoneore.chat.Channels;
+import net.redstoneore.chat.RLocation;
 import net.redstoneore.chat.Speaker;
 import net.redstoneore.chat.SpeakerFlag;
 import net.redstoneore.chat.channel.ConsoleChannel;
 import net.redstoneore.chat.config.Config;
+import net.redstoneore.chat.struct.HearType;
 
 public class ConsoleSpeaker implements Speaker {
 	
@@ -96,8 +97,8 @@ public class ConsoleSpeaker implements Speaker {
 	}
 
 	@Override
-	public boolean canHear(Channel channel, Speaker speaker) {
-		return true;
+	public HearType canHear(Channel channel, Speaker speaker) {
+		return HearType.CLEAR;
 	}
 
 	@Override
@@ -106,8 +107,9 @@ public class ConsoleSpeaker implements Speaker {
 	}
 
 	@Override
-	public Location getLocation() {
-		return null;
+	public RLocation getLocation() {
+		if (!Bukkit.isPrimaryThread()) return null;
+		return RLocation.create(Bukkit.getWorlds().get(0).getSpawnLocation());
 	}
 
 	@Override
@@ -122,6 +124,11 @@ public class ConsoleSpeaker implements Speaker {
 
 	@Override
 	public void addListening(Channel channel) {
+		
+	}
+	
+	@Override
+	public void removeListening(Channel channel) {
 		
 	}
 	

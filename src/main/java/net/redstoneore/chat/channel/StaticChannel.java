@@ -14,14 +14,14 @@ public class StaticChannel extends FlaggableChannel implements Channel {
 	// -------------------------------------------------- //
 
 	public StaticChannel(String name) {
-		this.part.channelName(name);
+		this.configuration.channelName(name);
 	}
 	
 	// -------------------------------------------------- //
 	// FIELDS
 	// -------------------------------------------------- //
 	
-	public PartChannel part = new PartChannel();
+	public PartChannel configuration = new PartChannel();
 	
 	// -------------------------------------------------- //
 	// METHODS
@@ -29,60 +29,70 @@ public class StaticChannel extends FlaggableChannel implements Channel {
 	
 	@Override
 	public String getName() {
-		return this.part.channelName();
+		return this.configuration.channelName();
 	}
 
 	@Override
 	public String getDescription() {
-		return this.part.channelDescription();
+		return this.configuration.channelDescription();
 	}
 
 	@Override
 	public List<PartChannelFormat> getFormat() {
-		return this.part.format();
+		return this.configuration.format();
 	}
 
 	@Override
 	public void setName(String name) {
-		this.part.channelName(name);
+		this.configuration.channelName(name);
 	}
 
 	@Override
 	public void setDescription(String description) {
-		this.part.channelDescription(description);
+		this.configuration.channelDescription(description);
 	}
 
 	@Override
 	public void setFormat(List<PartChannelFormat> format) {
-		this.part.format().clear();
-		this.part.format().addAll(format);
+		this.configuration.format().clear();
+		this.configuration.format().addAll(format);
 	}
 
 
 	@Override
 	public Optional<String> permission() {
-		if (!this.part.permissionExists()) return Optional.empty();
-		return Optional.of(part.permission());
+		if (!this.configuration.permissionExists()) return Optional.empty();
+		return Optional.of(configuration.permission());
 	}
 	
 	@Override
 	public void setHearDistance(double distance) {
-		this.part.hearDistance(distance);
+		this.configuration.hearDistance(distance);
 	}
 
 	@Override
 	public double getHearDistance() {
-		return this.part.hearDistance();
+		return this.configuration.hearDistance();
 	}
 
 	@Override
 	public void setMumbleDistance(double distance) {
-		this.part.mumbleDistance(distance);
+		this.configuration.mumbleDistance(distance);
 	}
 
 	@Override
 	public double getMumbleDistance() {
-		return this.part.mumbleDistance();
+		return this.configuration.mumbleDistance();
+	}
+	
+	@Override
+	public boolean isDefaultSpeaking() {
+		return this.configuration.isDefaultJoin();
+	}
+	
+	@Override
+	public boolean isDefaultListening() {
+		return this.configuration.isDefaultListen();
 	}
 		
 }

@@ -34,10 +34,18 @@ public class Group {
 	// METHODS
 	// -------------------------------------------------- //
 
+	/**
+	 * Returns the provider of this group.
+	 * @return The {@link JavaPlugin} that provides this group.
+	 */
 	public JavaPlugin getProvider() {
 		return this.provider;
 	}
 	
+	/**
+	 * Returns the group name.
+	 * @return The group name.
+	 */
 	public String getName() {
 		return this.name;
 	}

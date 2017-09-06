@@ -84,7 +84,7 @@ public class RedChat extends JavaPlugin {
 		
 		// Add our commands
 		RCommandHandler.add(CmdChannel.get());
-		RCommandHandler.add(	CmdChannelList.get());
+		RCommandHandler.add(CmdChannelList.get());
 		
 		Bukkit.getOnlinePlayers().forEach(Speakers.get()::get);
 		
@@ -146,6 +146,7 @@ public class RedChat extends JavaPlugin {
 	public void initiateDefaultConfig() {
 		Config.get().consoleId = UUID.randomUUID();
 		
+		// Add global channel
 		StaticChannel globalChannel = new StaticChannel("global");
 		globalChannel.setDescription("Default channel!");
 		globalChannel.getFormat().addAll(Lists.newArrayList(
@@ -161,6 +162,27 @@ public class RedChat extends JavaPlugin {
 		));
 		
 		Config.get().channels.add(globalChannel);
+		
+		// Add nearby channel
+		StaticChannel nearbyChannel = new StaticChannel("nearby");
+		nearbyChannel.setDescription("Nearby players - players nearby in a distance of 50 blocks.");
+		nearbyChannel.getFormat().addAll(Lists.newArrayList(
+			PartChannelFormat.create("[%redchat_channel_name%] ").colour(ChatColor.GRAY),
+			PartChannelFormat.create("<%redchat_player_name%> ").colour(ChatColor.WHITE).style(ChatColor.BOLD).tooltip(
+				PartChannelFormat.create("Level %player_level%"),
+				PartChannelFormat.create("Premium Member!").condition(
+					PartChannelFormatVisiblityConditions.create()
+						.permission("myserver.premium")
+				)	
+			),
+			PartChannelFormat.create("%redchat_player_message%").colour(ChatColor.WHITE)
+		));
+		
+		nearbyChannel.setHearDistance(40);
+		nearbyChannel.setMumbleDistance(60);
+		
+		Config.get().channels.add(nearbyChannel);
+		
 		Config.get().save();
 	}
 	
@@ -173,7 +195,11 @@ public class RedChat extends JavaPlugin {
 		this.logPlain(ChatColor.RED + "  / ___/ _ \\/ __  // /   / /_/ / /| | / /    ");
 		this.logPlain(ChatColor.RED + " / /  /  __/ /_/ // /___/ __  / ___ |/ /     ");
 		this.logPlain(ChatColor.RED + "/_/   \\___/\\__,_//\\____/_/ /_/_/  |_/_/      ");
-		this.log(this.getChannels().getAll().size() + " channels ready");
+		if (this.getChannels().getAll().size() == 1) {
+			this.log(this.getChannels().getAll().size() + " channel ready");
+		} else {
+			this.log(this.getChannels().getAll().size() + " channels ready");
+		}
 	}
 	
 	/**

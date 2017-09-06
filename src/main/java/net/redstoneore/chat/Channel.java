@@ -101,6 +101,18 @@ public interface Channel extends Comparable<Channel> {
 	UUID sendMessage(Speaker speaker, String message);
 	
 	/**
+	 * Is this a default join channel
+	 * @return true if is default
+	 */
+	boolean isDefaultSpeaking();
+	
+	/**
+	 * Is this a default listen channel
+	 * @return true if is default
+	 */
+	boolean isDefaultListening();
+	
+	/**
 	 * A timestamp of when this channel was created.
 	 * @return timestamp of when this channel was created.
 	 */

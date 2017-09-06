@@ -41,7 +41,11 @@ public class RCommandHandler {
 		
 		commands.forEach(command -> {
 			if (command.isAlias(alias)) {
-				event.setCancelled(true);
+				
+				if (event != null) {
+					event.setCancelled(true);					
+				}
+				
 				RCommandExec commandExec = new RCommandExec(command, commandSender, new Arguments(args));
 				RCommandQueue.get().add(commandSender.getId(), commandExec);
 			}

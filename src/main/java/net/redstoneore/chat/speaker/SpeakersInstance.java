@@ -69,7 +69,7 @@ public class SpeakersInstance implements Speakers {
 	@Override
 	public Set<Speaker> getListening(Channel channel) {
 		return this.getAll(true).stream()
-			.filter(speaker -> speaker.getListeningChannels().contains(channel))
+			.filter(speaker -> speaker.isListening(channel))
 			.collect(Collectors.toSet());
 	}
 	

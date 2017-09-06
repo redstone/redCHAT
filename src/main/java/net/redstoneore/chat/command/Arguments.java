@@ -11,19 +11,46 @@ import net.redstoneore.chat.Channel;
 import net.redstoneore.chat.Channels;
 import net.redstoneore.chat.exception.UnknownChannelException;
 import net.redstoneore.chat.plugin.RedChat;
+import net.redstoneore.chat.util.RCallback;
 import net.redstoneore.chat.util.uuid.MojangUuidResolver;
 import net.redstoneore.chat.util.uuid.UuidDisplayName;
 
 public class Arguments {
 
+	// -------------------------------------------------- //
+	// STATIC METHODS
+	// -------------------------------------------------- //
+	
+	public static Arguments of(List<String> arguments) {
+		return new Arguments(arguments);
+	}
+	
+	// -------------------------------------------------- //
+	// CONSTRUCT
+	// -------------------------------------------------- //
+	
 	public Arguments(List<String> arguments) {
 		this.arguments = arguments;
 	}
 	
+	// -------------------------------------------------- //
+	// FIELDS
+	// -------------------------------------------------- //
+	
 	private final List<String> arguments;
 	
+	// -------------------------------------------------- //
+	// METHODS
+	// -------------------------------------------------- //
+	
+	/**
+	 * Grab an argument as a type. This method accepts any (supported) type.
+	 * @param index Index at, starts at 0.
+	 * @param type Type to parse as.
+	 * @param then Callback method with the result, or null, or null and an exception.
+	 */
 	@SuppressWarnings("unchecked")
-	public <T>void get(int index, Class<T> type, RCommandCallback<T> then) {
+	public <T>void get(int index, Class<T> type, RCallback<T> then) {
 		if (this.arguments.size() < index + 1) {
 			then.then(null, Optional.of(new NullPointerException("Argument not available")));
 			return;
@@ -36,6 +63,10 @@ public class Arguments {
 			return;
 		}
 		
+		if (type == Double.class) {
+			then.then((T) Double.valueOf(stringValue), Optional.empty());
+			return;
+		}
 		
 		if (type == Channel.class) {
 			if (Channels.get().get(stringValue).isPresent()) {

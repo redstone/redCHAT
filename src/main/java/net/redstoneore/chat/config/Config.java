@@ -8,6 +8,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.ChatColor;
+
 import net.redstoneore.chat.Speaker;
 import net.redstoneore.chat.channel.StaticChannel;
 import net.redstoneore.chat.persist.Store;
@@ -49,8 +51,10 @@ public class Config implements Store<Config> {
 	
 	public boolean discord;
 	
+	public String mumbleMessagePrefix = ChatColor.GRAY.toString();
+
 	public String defaultChannel = "global";
-	
+		
 	public Set<StaticChannel> channels = Collections.newSetFromMap(new ConcurrentHashMap<StaticChannel, Boolean>());
 	
 	public Map<UUID, Speaker> speakers = new ConcurrentHashMap<UUID, Speaker>();

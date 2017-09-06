@@ -10,6 +10,7 @@ import mkremins.fanciful.FancyMessage;
 import net.redstoneore.chat.Channel;
 import net.redstoneore.chat.Channels;
 import net.redstoneore.chat.Speaker;
+import net.redstoneore.chat.util.RCallback;
 
 public class CmdChannelList extends RCommand<CmdChannel> {
 
@@ -22,7 +23,7 @@ public class CmdChannelList extends RCommand<CmdChannel> {
 	}
 	
 	@Override
-	void exec(Speaker speaker, Arguments arguments, RCommandCallback<Boolean> next) {
+	void exec(Speaker speaker, Arguments arguments, RCallback<Boolean> next) {
 		List<Channel> in = new ArrayList<>();
 		List<Channel> avab = new ArrayList<>();
 		

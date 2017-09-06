@@ -6,19 +6,21 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import mkremins.fanciful.FancyMessage;
 import net.redstoneore.chat.Channel;
 import net.redstoneore.chat.Channels;
+import net.redstoneore.chat.RLocation;
 import net.redstoneore.chat.Speaker;
 import net.redstoneore.chat.SpeakerFlag;
 import net.redstoneore.chat.config.Config;
 import net.redstoneore.chat.plugin.RedChat;
+import net.redstoneore.chat.struct.HearType;
 
 public class PlayerSpeaker implements Speaker {
 	
@@ -53,6 +55,9 @@ public class PlayerSpeaker implements Speaker {
 	private Set<String> ignores = Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 	
 	private transient Player player = null;
+	private transient RLocation lastKnownLocation = null;
+	
+	private AtomicBoolean firstJoin = new AtomicBoolean(true);
 	
 	// -------------------------------------------------- //
 	// METHODS
@@ -127,7 +132,7 @@ public class PlayerSpeaker implements Speaker {
 	@Override
 	public boolean isListening(Channel channel) {
 		return this.listeningChannels.stream()
-			.filter(listening -> listening.equals(channel.getName()))
+			.filter(listening -> listening == channel.getName())
 			.findFirst()
 			.isPresent();
 	}
@@ -135,6 +140,11 @@ public class PlayerSpeaker implements Speaker {
 	@Override
 	public void addListening(Channel channel) {
 		this.listeningChannels.add(channel.getName());
+	}
+	
+	@Override
+	public void removeListening(Channel channel) {
+		this.listeningChannels.remove(channel.getName());
 	}
 	
 	@Override
@@ -152,29 +162,33 @@ public class PlayerSpeaker implements Speaker {
 	}
 
 	@Override
-	public boolean canHear(Channel channel, Speaker speaker) {
-		if (speaker == this) return true;
+	public HearType canHear(Channel channel, Speaker speaker) {
+		// Check the player is here
+		if (this.player == null || !this.player.isOnline()) return HearType.NONE;
 		
-		if (!this.getSpeakingChannel().equals(channel)) return false;
+		if (speaker.getId() == this.getId()) return HearType.CLEAR;
+				
+		if (this.ignoring(speaker)) return HearType.NONE;
 		
-		if (this.ignoring(speaker)) return false;
+		if (this.flag(SpeakerFlag.LISTEN_ALL)) return HearType.CLEAR;
+
+		if (!this.isListening(channel)) return HearType.NONE;
 		
 		if (channel.getHearDistance() > 0 || channel.getMumbleDistance() > 0) {
-			if (channel.getHearDistance() > 0 && speaker.getDistance(this) < channel.getHearDistance()) {
+			if (channel.getHearDistance() > 0 && speaker.getDistance(this) <= channel.getHearDistance()) {
 				// in hear distance
-				return true;
-			} else if (channel.getMumbleDistance() > 0 && speaker.getDistance(this) < channel.getMumbleDistance()) {
-				// in mumble distance
-				return true;
-			} else {
-				// not in distance, check for listen all flag
-				if (!this.flag(SpeakerFlag.LISTEN_ALL)) {
-					return false;
-				}
+				return HearType.CLEAR;
 			}
+			
+			if (channel.getMumbleDistance() > 0 && speaker.getDistance(this) <= channel.getMumbleDistance()) {
+				// in mumble distance
+				return HearType.MUMBLE;
+			} 
+			
+			return HearType.NONE;
 		}
 		
-		return true;
+		return HearType.CLEAR;
 	}
 
 	@Override
@@ -185,10 +199,22 @@ public class PlayerSpeaker implements Speaker {
 	}
 
 	@Override
-	public Location getLocation() {
-		return this.player.getLocation();
+	public RLocation getLocation() {
+		if (this.lastKnownLocation == null) {
+			if (Bukkit.isPrimaryThread() && this.player != null) {
+				this.lastKnownLocation = RLocation.create(this.player.getLocation());
+			}
+			
+			return null;
+		}
+		
+		return this.lastKnownLocation;
 	}
 	
+	/**
+	 * Player only method to populate this object with the players information.
+	 * @param player Player to populate.
+	 */
 	public void onLogin(Player player) {
 		this.id = player.getUniqueId();
 		this.name = player.getName();
@@ -201,7 +227,30 @@ public class PlayerSpeaker implements Speaker {
 				this.addListening(defaultChannel);
 			}
 		}
-
+		
+		if (this.firstJoin.get()) {
+			this.firstJoin.set(false);
+			
+			// First join, add to defaults.
+			Channels.get().getAll().forEach(channel -> {
+				if (channel.isDefaultSpeaking() || channel.isDefaultListening()) {
+					// This is a default speaking or listening, so listen here.
+					this.addListening(channel);
+				}
+				if (channel.isDefaultSpeaking()) {
+					// This is a default speaking channel, so speak here.
+					this.setSpeakingChannel(channel);
+				}
+			});
+		}
+	}
+	
+	/**
+	 * To make it safer for async methods we store the last location in the safe {@link RLocation}.
+	 * @param lastLocation
+	 */
+	public void setLastLocation(RLocation lastLocation) {
+		this.lastKnownLocation = lastLocation;
 	}
 	
 }

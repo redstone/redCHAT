@@ -5,8 +5,20 @@ import java.util.List;
 import java.util.Optional;
 
 import net.redstoneore.chat.Speaker;
+import net.redstoneore.chat.util.RCallback;
 
-public abstract class RCommand<T> {
+/**
+ * RCommand is a very useful utility for creating and executing commands. All commands are called
+ * in async, so if you want to make calls the Bukkit API be sure to do so with a sync task.<br>
+ * <br>
+ * When the command is done executing call the {@link RCallback#then(Object, Optional)}
+ * method. This will signal our command queue to call the next command. We do this to stop players
+ * executing too many commands at one time. If a player goes offline the queue is cleared.<br>
+ * <br>
+ * To not call the next command in the queue simply pass false. This is not recommended unless you
+ * are starting the queue up again later. 
+ */
+public abstract class RCommand<T extends RCommand<T>> {
 
 	// -------------------------------------------------- //
 	// FIELDS
@@ -58,6 +70,6 @@ public abstract class RCommand<T> {
 		}
 	}
 	
-	abstract void exec(Speaker speaker, Arguments arguments, RCommandCallback<Boolean> next);
+	abstract void exec(final Speaker speaker, final Arguments arguments, final RCallback<Boolean> next);
 	
 }

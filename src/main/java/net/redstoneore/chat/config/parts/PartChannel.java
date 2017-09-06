@@ -15,6 +15,8 @@ public class PartChannel {
 	private List<PartChannelFormat> format = new ArrayList<>();
 	private double hearDistance = -1d;
 	private double mumbleDistance = -1d;
+	private boolean isDefaultJoin = false;
+	private boolean isDefaultListen = false;
 	
 	// -------------------------------------------------- //
 	// METHODS
@@ -66,6 +68,14 @@ public class PartChannel {
 	
 	public void mumbleDistance(double mumbleDistance) {
 		this.mumbleDistance = mumbleDistance;
+	}
+	
+	public boolean isDefaultJoin() {
+		return this.isDefaultJoin;
+	}
+	
+	public boolean isDefaultListen() {
+		return this.isDefaultListen;
 	}
 	
 }

@@ -5,9 +5,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 
+import net.redstoneore.chat.Channel;
 import net.redstoneore.chat.Speaker;
 
-public class ChannelChatListenAllEvent extends RedChatEvent<ChannelChatListenAllEvent> implements Cancellable {
+public class ChannelListenEvent extends RedChatEvent<ChannelListenEvent> implements Cancellable {
 
 	// -------------------------------------------------- //
 	// STATIC FIELDS
@@ -15,8 +16,8 @@ public class ChannelChatListenAllEvent extends RedChatEvent<ChannelChatListenAll
 	
 	private static final HandlerList handlers = new HandlerList();
 	
-	public static ChannelChatListenAllEvent create(ChannelChatInitiateEvent initiateEvent, Speaker spy) {
-		return new ChannelChatListenAllEvent(initiateEvent, spy);
+	public static ChannelListenEvent create(Speaker speaker, Channel channel) {
+		return new ChannelListenEvent(speaker, channel);
 	}
 	
 	// -------------------------------------------------- //
@@ -31,29 +32,29 @@ public class ChannelChatListenAllEvent extends RedChatEvent<ChannelChatListenAll
 	// CONSTRUCT
 	// -------------------------------------------------- //
 	
-	public ChannelChatListenAllEvent(ChannelChatInitiateEvent initiateEvent, Speaker spy) {
-		this.initiateEvent = initiateEvent;
-		this.spy = spy;
+	public ChannelListenEvent(Speaker speaker, Channel channel) {
+		this.speaker = speaker;
+		this.channel = channel;
 	}
 	
 	// -------------------------------------------------- //
 	// FIELDS
 	// -------------------------------------------------- //
 	
-	private final ChannelChatInitiateEvent initiateEvent;
-	private final Speaker spy;
+	private final Speaker speaker;
+	private final Channel channel;
 	private final AtomicBoolean cancelled = new AtomicBoolean(false);
 	
 	// -------------------------------------------------- //
 	// METHODS
 	// -------------------------------------------------- //
 	
-	public ChannelChatInitiateEvent getInitiateEvent() {
-		return this.initiateEvent;
+	public Speaker getSpeaker() {
+		return this.speaker;
 	}
 	
-	public Speaker getSpy() {
-		return this.spy;
+	public Channel getChannel() {
+		return this.channel;
 	}
 	
 	@Override
